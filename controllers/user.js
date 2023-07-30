@@ -1,12 +1,24 @@
 import {v4 as uuidv4} from 'uuid';
-
+import User from '../models/userModel.js';
 let users = []
 
-export const createUser = (req, res) => {
-    const new_user = req.body;
-    new_user["id"] = uuidv4();
-    users.push(new_user)
-    res.send("user added...")
+export const createUser = async(req, res) => {
+    const { name, email, password } = req.body;
+
+    const userExists = await User.findOne({email})
+    if (userExists){
+        res.send("User already exists...")
+    }
+
+    const user = await User.create({name, email, password});
+    if(user){
+        res.send("user added...");
+    }
+    else{
+        res.send("Error...")
+    }
+    // new_user["id"] = uuidv4();
+    // users.push(new_user)
 }
 
 export const getUsers = (req, res)=> {
