@@ -1,6 +1,5 @@
 import {v4 as uuidv4} from 'uuid';
 import User from '../models/userModel.js';
-let users = []
 
 export const createUser = async(req, res) => {
     const { name, email, password } = req.body;
@@ -17,43 +16,39 @@ export const createUser = async(req, res) => {
     else{
         res.send("Error...")
     }
-    // new_user["id"] = uuidv4();
-    // users.push(new_user)
 }
 
-export const getUsers = (req, res)=> {
+export const getUsers = async(req, res)=> {
+    const users = await User.find()
     res.send(users)
 };
 
-export const getUser = (req, res)=> {
+export const getUser = async (req, res)=> {
     const {id} = req.params;
-    const foundUser = users.find((user)=> user.id == id );
-    res.send(foundUser)
+    const user = await User.findOne({_id:id});
+    res.send(user)
 }
 
-export const updateUser = (req, res)=> {
+export const updateUser = async (req, res)=> {
     const {id} = req.params;
-    const index = users.findIndex((user)=> user.id == id );
-    let user_data = {}
-    if(index != -1){
-        user_data = req.body;
-        user_data['id'] = id
-        users[index] = user_data
-        res.send(users)
+    const { name, password, email } = req.body;
+
+    const user = await User.updateOne({_id:id},{$set:{name, password}});
+    if(user){
+        res.send("user updated...")
     }
     else{
-        res.send("User not found...")
+        res.send("Error...")
     }
 }
 
-export const deleteUser = (req, res)=> {
+export const deleteUser = async (req, res)=> {
     const {id} = req.params;
-    const foundUser = users.find((user)=> user.id == id );
-    if(foundUser){
-        users = users.filter((user)=> user.id != id );
+    const user = await User.deleteOne({_id:id});
+    if(user){
         res.send("user Removed")
     }
     else{
-        res.send("User not found...")
+        res.send("user not found...")
     }
 }

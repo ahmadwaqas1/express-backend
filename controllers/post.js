@@ -1,8 +1,6 @@
 import {v4 as uuidv4} from 'uuid';
 import Post from '../models/postModel.js';
 
-let posts = []
-
 export const createPost = async (req, res) => {
     const { title, content, userId } = req.body;
 
@@ -15,36 +13,34 @@ export const createPost = async (req, res) => {
     }
 }
 
-export const getPosts = (req, res)=> {
+export const getPosts = async(req, res) => {
+    const posts = await Post.find()
     res.send(posts)
 };
 
-export const getPost = (req, res)=> {
+export const getPost = async (req, res) => {
     const {id} = req.params;
-    const foundPost = posts.find((post)=> post.id == id );
-    res.send(foundPost)
+    const post = await Post.findOne({_id:id});
+    res.send(post)
 }
 
-export const updatePost = (req, res)=> {
+export const updatePost = async (req, res) => {
     const {id} = req.params;
-    const index = posts.findIndex((post)=> post.id == id );
-    let post_data = {}
-    if(index != -1){
-        post_data = req.body;
-        post_data['id'] = id
-        posts[index] = post_data
-        res.send(posts)
+    const { title, content } = req.body;
+
+    const post = await Post.updateOne({_id:id},{$set:{title, content}});
+    if(post){
+        res.send("post updated...")
     }
     else{
-        res.send("post not found...")
+        res.send("Error...")
     }
 }
 
-export const deletePost = (req, res)=> {
+export const deletePost = async (req, res)=> {
     const {id} = req.params;
-    const foundPost = posts.find((post)=> post.id == id );
-    if(foundPost){
-        posts = posts.filter((post)=> post.id != id );
+    const post = await Post.deleteOne({_id:id});
+    if(post){
         res.send("post Removed")
     }
     else{
